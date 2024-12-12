@@ -2,6 +2,8 @@ use super::Select;
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
+use crate::fitness::FITNESS_MAX;
+use crate::fitness::FITNESS_MIN;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
@@ -96,13 +98,13 @@ impl Tournament {
             FitnessOrdering::Maximize => {
                 for _ in 0..selection_size {
                     winning_index = 0;
-                    winning_fitness_value = FitnessValue::MIN;
+                    winning_fitness_value = FITNESS_MIN;
 
                     for _ in 0..tournament_size {
                         sample_index = rng.gen_range(0..working_population_size);
                         sample_fitness_value = chromosomes[sample_index]
                             .fitness_score()
-                            .unwrap_or(FitnessValue::MIN);
+                            .unwrap_or(FITNESS_MIN);
 
                         if sample_fitness_value >= winning_fitness_value {
                             winning_index = sample_index;
@@ -117,13 +119,13 @@ impl Tournament {
             FitnessOrdering::Minimize => {
                 for _ in 0..selection_size {
                     winning_index = 0;
-                    winning_fitness_value = FitnessValue::MAX;
+                    winning_fitness_value = FITNESS_MAX;
 
                     for _ in 0..tournament_size {
                         sample_index = rng.gen_range(0..working_population_size);
                         sample_fitness_value = chromosomes[sample_index]
                             .fitness_score()
-                            .unwrap_or(FitnessValue::MAX);
+                            .unwrap_or(FITNESS_MAX);
 
                         if sample_fitness_value <= winning_fitness_value {
                             winning_index = sample_index;

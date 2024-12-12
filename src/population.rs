@@ -86,7 +86,7 @@ impl<C: Chromosome> Population<C> {
         amount: usize,
         fitness_ordering: FitnessOrdering,
     ) -> Vec<usize> {
-        let mut data: Vec<(usize, isize)> = self
+        let mut data: Vec<(usize, FitnessValue)> = self
             .chromosomes
             .iter()
             .filter_map(|c| c.fitness_score())
@@ -133,7 +133,7 @@ impl<C: Chromosome> Population<C> {
         amount: usize,
         fitness_ordering: FitnessOrdering,
     ) -> Vec<usize> {
-        let mut data: HashMap<GenesHash, (usize, isize)> = HashMap::new();
+        let mut data: HashMap<GenesHash, (usize, FitnessValue)> = HashMap::new();
         self.chromosomes
             .iter()
             .enumerate()

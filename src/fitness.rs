@@ -16,13 +16,17 @@ use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::{StrategyAction, StrategyConfig, StrategyState};
+use ordered_float::NotNan;
 use rayon::prelude::*;
 use std::cell::RefCell;
 use std::time::Instant;
 use thread_local::ThreadLocal;
 
-/// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
-pub type FitnessValue = isize;
+pub type FitnessValue = NotNan<f64>;
+// Can't use checked version, because it's not const.
+// However, INF is never NaN, so using unsafe new_unchecked is safe.
+pub const FITNESS_MAX: FitnessValue = unsafe { NotNan::new_unchecked(f64::INFINITY) };
+pub const FITNESS_MIN: FitnessValue = unsafe { NotNan::new_unchecked(f64::NEG_INFINITY) };
 
 #[derive(Copy, Clone, Debug)]
 pub enum FitnessOrdering {

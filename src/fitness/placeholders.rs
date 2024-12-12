@@ -5,6 +5,8 @@ use crate::fitness::{Fitness, FitnessChromosome, FitnessPopulation, FitnessValue
 use crate::genotype::{
     BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, StaticMatrixGenotype,
 };
+use num::FromPrimitive;
+use ordered_float::NotNan;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
@@ -33,7 +35,7 @@ impl<G: Genotype> Fitness for Zero<G> {
         _chromosome: &FitnessChromosome<Self>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
-        Some(0)
+        Some(NotNan::default())
     }
 }
 
@@ -47,7 +49,7 @@ impl Fitness for CountTrue {
         chromosome: &FitnessChromosome<Self>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
-        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+        Some(NotNan::from_usize(chromosome.genes.iter().filter(|&value| *value).count()).unwrap())
     }
 }
 
@@ -61,7 +63,7 @@ impl Fitness for CountOnes {
         chromosome: &FitnessChromosome<Self>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
-        Some(chromosome.genes.count_ones(..) as FitnessValue)
+        Some(NotNan::from_usize(chromosome.genes.count_ones(..)).unwrap())
     }
 }
 
@@ -111,7 +113,7 @@ where
             .clone()
             .into_iter()
             .fold(0.0_f64, |acc, e| acc + e.into());
-        Some((sum / self.precision) as FitnessValue)
+        Some(NotNan::new(sum / self.precision).unwrap())
     }
 }
 
@@ -171,8 +173,7 @@ where
             .data
             .chunks(genotype.genes_size())
             .map(|genes| {
-                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
-                    as FitnessValue
+                NotNan::new(genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision).unwrap()
             })
             .map(Some)
             .collect()
@@ -238,8 +239,7 @@ where
             .data
             .iter()
             .map(|genes| {
-                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
-                    as FitnessValue
+                NotNan::new(genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision).unwrap()
             })
             .map(Some)
             .collect()
@@ -268,7 +268,7 @@ impl Fitness for CountTrueWithSleep {
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
-        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+        Some(NotNan::from_usize(chromosome.genes.iter().filter(|&value| *value).count()).unwrap())
     }
 }
 impl Clone for CountTrueWithSleep {
@@ -299,10 +299,10 @@ impl<G: Genotype> Fitness for Countdown<G> {
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         if self.0 == 0 {
-            Some(0)
+            Some(NotNan::default())
         } else {
             self.0 -= 1;
-            Some(self.0 as FitnessValue)
+            Some(NotNan::from_usize(self.0).unwrap())
         }
     }
 }
@@ -335,12 +335,12 @@ impl<G: Genotype> Fitness for CountdownNoisy<G> {
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         if self.start == 0 {
-            Some(0)
+            Some(NotNan::default())
         } else {
             self.start -= 1;
             let base = (self.start / self.step + 1) * self.step;
             let result = base + self.noise_sampler.sample(&mut self.rng);
-            Some(result as FitnessValue)
+            Some(NotNan::from_usize(result).unwrap())
         }
     }
 }

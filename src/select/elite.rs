@@ -1,6 +1,6 @@
 use super::Select;
 use crate::chromosome::Chromosome;
-use crate::fitness::{FitnessOrdering, FitnessValue};
+use crate::fitness::{FitnessOrdering, FITNESS_MAX, FITNESS_MIN};
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
@@ -84,13 +84,13 @@ impl Elite {
             FitnessOrdering::Maximize => {
                 chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
                     Some(fitness_score) => Reverse(fitness_score),
-                    None => Reverse(FitnessValue::MIN),
+                    None => Reverse(FITNESS_MIN),
                 });
             }
             FitnessOrdering::Minimize => {
                 chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
                     Some(fitness_score) => fitness_score,
-                    None => FitnessValue::MAX,
+                    None => FITNESS_MAX,
                 });
             }
         }
