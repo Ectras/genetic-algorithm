@@ -1,6 +1,6 @@
 //! The population is a  container for [Chromosomes](Chromosome)
 use crate::chromosome::Chromosome;
-use crate::fitness::FitnessOrdering;
+use crate::fitness::{FitnessOrdering, FitnessValue};
 use cardinality_estimator::CardinalityEstimator;
 use rand::prelude::*;
 
@@ -81,7 +81,7 @@ impl<C: Chromosome> Population<C> {
         stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score())) as f32
     }
     pub fn fitness_score_cardinality(&self) -> usize {
-        let mut estimator = CardinalityEstimator::<isize>::new();
+        let mut estimator = CardinalityEstimator::<FitnessValue>::new();
         let mut nones = 0;
         self.chromosomes.iter().for_each(|chromosome| {
             if let Some(fitness_score) = chromosome.fitness_score() {
@@ -91,12 +91,6 @@ impl<C: Chromosome> Population<C> {
             }
         });
         estimator.estimate() + nones
-    }
-
-    pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
-        self.chromosomes
-            .iter()
-            .any(|c| c.fitness_score() == fitness_score)
     }
 }
 
